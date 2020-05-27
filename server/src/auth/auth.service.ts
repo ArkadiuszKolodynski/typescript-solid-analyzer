@@ -7,7 +7,7 @@ export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
   async getGithubAccessToken(code: string): Promise<string> {
-    const response: any = await fetch('https://github.com/login/oauth/access_token', {
+    const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -16,22 +16,17 @@ export class AuthService {
         code,
       }),
     });
-    if (response.ok) {
-      const tokenObj: any = await response.json();
-      if (!tokenObj.error) {
-        return tokenObj.access_token;
-      }
-    }
-    throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    if (!response.ok) throw new HttpException(response.statusText, response.status);
+    const tokenObj: any = await response.json();
+    if (tokenObj.error) throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    return tokenObj.access_token;
   }
 
   async getGithubUser(access_token: string): Promise<any> {
     const response = await fetch('https://api.github.com/user', {
       headers: { Authorization: `token ${access_token}` },
     });
-    if (response.ok) {
-      return response.json();
-    }
-    throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    if (!response.ok) throw new HttpException(response.statusText, response.status);
+    return response.json();
   }
 }

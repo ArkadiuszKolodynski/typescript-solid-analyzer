@@ -4,7 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { UsersModule } from './users/users.module';
-import { AppGateway } from './app.gateway';
+import { AnalysesModule } from './analyses/analyses.module';
+import { PluginsModule } from './plugins/plugins.module';
 
 @Module({
   imports: [
@@ -18,8 +19,10 @@ import { AppGateway } from './app.gateway';
     }),
     RepositoriesModule,
     UsersModule,
+    AnalysesModule,
+    PluginsModule,
   ],
   controllers: [],
-  providers: [AppGateway],
+  providers: [],
 })
 export class AppModule {}

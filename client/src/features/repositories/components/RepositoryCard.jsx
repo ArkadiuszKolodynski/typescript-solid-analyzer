@@ -11,14 +11,20 @@ export const RepositoryCard = ({ repository }) => {
       console.log(socket);
       socket.send(
         JSON.stringify({
-          event: "analysis",
+          event: "perform_analysis",
           data: { clone_url: repository.clone_url },
         })
       );
     };
-    socket.onmessage = (message) => {};
+    socket.onmessage = (message) => {
+      console.log(message);
+      if (JSON.parse(message.data).event === "results") {
+        console.log("closing...");
+        socket.close();
+      }
+    };
     socket.onclose = (ev) => {
-      console.log("close");
+      console.log("closed");
     };
   };
 

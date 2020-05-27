@@ -3,17 +3,24 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  //TODO: serialize returning objects instead of cast
+
+  async createUser(createUserDto: CreateUserDto): Promise<UserDto> {
     const createdUser: User = new this.userModel(createUserDto);
-    return await createdUser.save();
+    return (await createdUser.save()) as UserDto;
   }
 
-  async findOne(login: string): Promise<User> {
-    return await this.userModel.findOne({ login }).select('login');
+  async findAll(): Promise<UserDto[]> {
+    return (await this.userModel.find()) as UserDto[];
+  }
+
+  async findOne(login: string): Promise<UserDto> {
+    return (await this.userModel.findOne({ login }).select('login')) as UserDto;
   }
 }

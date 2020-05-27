@@ -20,7 +20,7 @@ const bootstrap = async () => {
   app.register(fastifyCookie);
   //TODO: secure cookies
   app.register(fastifySession, {
-    cookie: { httpOnly: false, maxAge: 365 * 24 * 60 * 60 * 1000, sameSite: 'Lax', secure: false },
+    cookie: { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, sameSite: 'Lax', secure: false },
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
     store: new mongoSessionStore({
@@ -28,7 +28,7 @@ const bootstrap = async () => {
       collection: 'sessions',
     }),
   });
-  app.register(fastifyCsrf, { cookie: true });
+  // app.register(fastifyCsrf);
   app.register(fastifyReplyFrom);
   app.useWebSocketAdapter(new WsAdapter(app));
   app.setGlobalPrefix('api/v1');

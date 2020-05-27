@@ -1,16 +1,16 @@
-import { Controller, Get, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, UseGuards, Session as GetSession } from '@nestjs/common';
 import { RepositoriesService } from './repositories.service';
-import { FastifyRequest } from 'fastify';
+import { Session } from 'fastify';
+import { RepositoryDto } from './dto/repository.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('repositories')
+@UseGuards(AuthGuard)
 export class RepositoriesController {
   constructor(private readonly repositoriesService: RepositoriesService) {}
 
   @Get()
-  async getRepositories(@Req() req: FastifyRequest) {
-    if (req.session.token) {
-      return await this.repositoriesService.findAll(req.session.token);
-    }
-    throw new HttpException('Unauthorized!', HttpStatus.UNAUTHORIZED);
+  async getRepositories(@GetSession() session: Session): Promise<RepositoryDto[]> {
+    return await this.repositoriesService.findAll(session.token);
   }
 }
