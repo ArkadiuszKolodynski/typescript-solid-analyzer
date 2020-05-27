@@ -11,7 +11,7 @@ const Login = () => {
     (async () => {
       try {
         const code = new URLSearchParams(window.location.search).get("code");
-        const user = await fetchData(`/api/v1/auth/login?code=${code}`);
+        const user = await fetchData(`/api/v1/auth/login`, { code });
         dispatch({ type: "login", payload: user });
         toast.success("Login success!");
         history.push("/repositories");

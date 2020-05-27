@@ -36,7 +36,9 @@ export const Header = ({ state }) => (
     ) : (
       <button
         className="btn btn-outline-secondary"
-        onClick={() => window.location.replace("/api/v1/auth/github")}
+        onClick={() =>
+          window.location.replace("/api/v1/auth/authorize-in-github")
+        }
         title="Sign in with GitHub"
       >
         <FontAwesomeIcon icon={faGithub} /> Sign in
