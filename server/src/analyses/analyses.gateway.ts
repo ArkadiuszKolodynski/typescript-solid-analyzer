@@ -1,15 +1,16 @@
-import { Logger, UsePipes, ValidationPipe, UseFilters } from '@nestjs/common';
+import { Logger, UseFilters,UsePipes, ValidationPipe } from '@nestjs/common';
 import {
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WsResponse,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  MessageBody,
 } from '@nestjs/websockets';
-import { WebSocket } from 'ws';
-import { RepositoryToAnalyzeDto } from './dto/repository-to-analyze.dto';
+import * as WebSocket from 'ws';
+
 import { AnalysesService } from './analyses.service';
+import { RepositoryToAnalyzeDto } from './dto/repository-to-analyze.dto';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
 
 @UseFilters(new WsExceptionFilter())
@@ -19,10 +20,10 @@ export class AnalysesGateway implements OnGatewayConnection, OnGatewayDisconnect
   constructor(private readonly analysesService: AnalysesService) {}
 
   handleConnection(client: WebSocket): void {
-    Logger.log(`Client connected ${client._socket.remoteAddress}`);
+    Logger.log(`Client connected ${(<any>client)._socket.remoteAddress}`);
   }
   handleDisconnect(client: WebSocket): void {
-    Logger.log(`Client disconnected ${client._socket.remoteAddress}`);
+    Logger.log(`Client disconnected ${(<any>client)._socket.remoteAddress}`);
   }
 
   @SubscribeMessage('perform_analysis')

@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import { AnalysesModule } from './analyses/analyses.module';
+import { AuthModule } from './auth/auth.module';
+import configuration from './config/configuration';
+import { PluginsModule } from './plugins/plugins.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { UsersModule } from './users/users.module';
-import { AnalysesModule } from './analyses/analyses.module';
-import { PluginsModule } from './plugins/plugins.module';
-import configuration from './config/configuration';
 
 @Module({
   imports: [

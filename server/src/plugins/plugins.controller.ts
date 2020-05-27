@@ -1,8 +1,9 @@
-import { Controller, UseGuards, Post, Body, Put, Delete, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch,Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { PluginsService } from './plugins.service';
-import { UploadPluginDto } from './dto/upload-plugin.dto';
+
 import { PluginDto } from './dto/plugin.dto';
+import { UploadPluginDto } from './dto/upload-plugin.dto';
+import { PluginsService } from './plugins.service';
 
 @Controller('plugins')
 @UseGuards(AuthGuard)

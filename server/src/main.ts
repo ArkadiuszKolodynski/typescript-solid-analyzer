@@ -1,14 +1,15 @@
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { WsAdapter } from '@nestjs/platform-ws';
-import { AppModule } from './app.module';
 import * as fastifyCookie from 'fastify-cookie';
 import * as fastifyCsrf from 'fastify-csrf';
+import * as helmet from 'fastify-helmet';
 import * as fastifyReplyFrom from 'fastify-reply-from';
 import * as fastifySession from 'fastify-session';
-import * as helmet from 'fastify-helmet';
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+
+import { AppModule } from './app.module';
 //TODO
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mongoSessionStore = require('connect-mongodb-session')(fastifySession);

@@ -1,21 +1,22 @@
 import {
+  Body,
   Controller,
   Get,
-  Res,
-  Req,
   HttpException,
   HttpStatus,
   Logger,
   Post,
-  Body,
+  Req,
+  Res,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ServerResponse } from 'http';
-import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
-import { UserDto } from 'src/users/dto/user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { ConfigService } from '@nestjs/config';
+import { UserDto } from 'src/users/dto/user.dto';
+import { UsersService } from 'src/users/users.service';
+
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {

@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { dir } from 'tmp-promise';
-import * as path from 'path';
-import { AnalysisResultsDto } from './dto/analysis-results.dto';
-import { cloneRepo } from './utils/clone-repo.util';
-import { cleanup } from '../common/utils/cleanup.utils';
 import { ConfigService } from '@nestjs/config';
-import { PluginsService } from 'src/plugins/plugins.service';
+import * as path from 'path';
 import { Plugin } from 'src/plugins/interfaces/plugin.interface';
+import { PluginsService } from 'src/plugins/plugins.service';
+import { dir } from 'tmp-promise';
+
+import { cleanup } from '../common/utils/cleanup.utils';
+import { AnalysisResultsDto } from './dto/analysis-results.dto';
 import { PluginInstance } from './interfaces/plugin-instance.interface';
+import { cloneRepo } from './utils/clone-repo.util';
 
 @Injectable()
 export class AnalysesService {

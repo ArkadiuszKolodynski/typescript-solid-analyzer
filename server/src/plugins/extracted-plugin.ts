@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsString, IsSemVer } from 'class-validator';
+import { IsNotEmpty, IsSemVer,IsString } from 'class-validator';
 
 export class ExtractedPlugin {
   @Expose()

@@ -9,15 +9,16 @@ import { Model } from 'mongoose';
 import * as os from 'os';
 import * as path from 'path';
 import { cleanup, parsePackageJson } from 'src/common/utils';
-import { Plugin } from './interfaces/plugin.interface';
-import { moveDir, isFileExists, writeFileFromBase64 } from './utils';
+
 import {
+  IncorrectPluginUploadException,
   InvalidPluginException,
   PluginAlreadyExistException,
   PluginDoesNotExistException,
-  IncorrectPluginUploadException,
 } from './exceptions';
 import { ExtractedPlugin } from './extracted-plugin';
+import { Plugin } from './interfaces/plugin.interface';
+import { isFileExists, moveDir, writeFileFromBase64 } from './utils';
 
 @Injectable()
 export class PluginsService {
