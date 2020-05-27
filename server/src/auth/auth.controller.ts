@@ -15,11 +15,13 @@ import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { UserDto } from 'src/users/dto/user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -61,7 +63,7 @@ export class AuthController {
     @Req() req: FastifyRequest,
     @Res() res: FastifyReply<ServerResponse>,
   ): Promise<void> {
-    res.setCookie('csrf-token', req.csrfToken(), { httpOnly: false, secure: false, path: '/' });
+    // res.setCookie('csrf-token', req.csrfToken(), { httpOnly: false, secure: false, path: '/' });
     if (req.session?.token) {
       res.send(await this.authService.getGithubUser(req.session.token));
     } else {
@@ -72,8 +74,9 @@ export class AuthController {
 
   @Get('/authorize-in-github')
   private authorizeInGithub(@Res() res: FastifyReply<ServerResponse>): void {
+    const clientId = this.configService.get<string>('clientId');
     res.from(
-      `https://github.com/login/oauth/authorize?client_id=${process.env.CLIENT_ID}&scope=user:email%20repo`,
+      `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email%20repo`,
     );
   }
 }

@@ -10,7 +10,7 @@ export class RepositoriesController {
   constructor(private readonly repositoriesService: RepositoriesService) {}
 
   @Get()
-  async getRepositories(@GetSession() session: Session): Promise<RepositoryDto[]> {
-    return await this.repositoriesService.findAll(session.token);
+  async findAll(@GetSession() session: Session): Promise<RepositoryDto[]> {
+    return this.repositoriesService.findAll(session.token);
   }
 }

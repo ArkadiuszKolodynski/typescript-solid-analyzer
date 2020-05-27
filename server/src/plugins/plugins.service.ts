@@ -1,54 +1,109 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
+import { plainToClass } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { randomBytes } from 'crypto';
-import * as extractZippedPlugin from 'extract-zip';
+import * as extract from 'extract-zip';
 import { Model } from 'mongoose';
-import { tmpdir } from 'os';
+import * as os from 'os';
 import * as path from 'path';
-import { cleanup } from 'src/common/utils/cleanup.utils';
+import { cleanup, parsePackageJson } from 'src/common/utils';
 import { Plugin } from './interfaces/plugin.interface';
-import { writeFileFromBase64 } from './utils/write-file-from-base64.util';
-import { parsePackageJson } from 'src/common/utils/parse-package-json.util';
-import { moveDir } from './utils/move-dir.util';
+import { moveDir, isFileExists, writeFileFromBase64 } from './utils';
+import {
+  InvalidPluginException,
+  PluginAlreadyExistException,
+  PluginDoesNotExistException,
+  IncorrectPluginUploadException,
+} from './exceptions';
+import { ExtractedPlugin } from './extracted-plugin';
 
 @Injectable()
 export class PluginsService {
-  private readonly pluginsPath: string = path.resolve(__dirname, '../..', process.env.PLUGINS_PATH);
+  private readonly pluginsPath: string = this.configService.get<string>('pluginsPath');
 
-  constructor(@InjectModel('Plugin') private readonly pluginModel: Model<Plugin>) {}
+  constructor(
+    @InjectModel('Plugin') private readonly pluginModel: Model<Plugin>,
+    private readonly configService: ConfigService,
+  ) {}
 
   async upload(dataUri: string): Promise<string> {
     const pluginFileName = `${randomBytes(12).toString('hex')}.zip`;
-    const pluginFilePath = tmpdir() + path.sep + pluginFileName;
+    const pluginFilePath = os.tmpdir() + path.sep + pluginFileName;
     await writeFileFromBase64(pluginFilePath, dataUri.split(',').pop());
     return pluginFileName;
   }
 
   async create(pluginFileName: string): Promise<void> {
-    const pluginFilePath = tmpdir() + path.sep + pluginFileName;
-    const pluginExtractDestination = pluginFilePath.replace('.zip', '');
-    await extractZippedPlugin(pluginFilePath, { dir: pluginExtractDestination });
-    const { name, main, version } = await parsePackageJson(
-      `${pluginExtractDestination}${path.sep}package.json`,
+    const { pathToPluginZip, pathToExtractPlugin } = await this.getPaths(pluginFileName);
+    const plugin: ExtractedPlugin = await this.extractZippedPlugin(
+      pathToPluginZip,
+      pathToExtractPlugin,
     );
-    if ((await this.pluginModel.findOne({ name })) !== null) {
-      cleanup(pluginFilePath);
-      cleanup(pluginExtractDestination);
-      throw new HttpException('Plugin already exist', HttpStatus.BAD_REQUEST);
+    if ((await this.pluginModel.findOne({ name: plugin.name })) !== null) {
+      throw new PluginAlreadyExistException([pathToPluginZip, pathToExtractPlugin]);
     }
-    const plugin: Plugin = await new this.pluginModel({ name, main, version }).save();
-    await moveDir(pluginExtractDestination, this.pluginsPath + path.sep + plugin.name);
-    cleanup(pluginFilePath);
+    const createdPlugin: Plugin = await new this.pluginModel(plugin).save();
+    await moveDir(pathToExtractPlugin, this.pluginsPath + path.sep + createdPlugin.name);
+    cleanup(pathToPluginZip);
     return;
   }
 
-  async update() {
+  async update(pluginFileName: string): Promise<void> {
+    const { pathToPluginZip, pathToExtractPlugin } = await this.getPaths(pluginFileName);
+    const plugin: ExtractedPlugin = await this.extractZippedPlugin(
+      pathToPluginZip,
+      pathToExtractPlugin,
+    );
+    await this.pluginModel
+      .findOneAndUpdate({ name: plugin.name }, plugin)
+      .orFail(new PluginDoesNotExistException([pathToPluginZip, pathToExtractPlugin]));
+    await cleanup(this.pluginsPath + path.sep + plugin.name);
+    await moveDir(pathToExtractPlugin, this.pluginsPath + path.sep + plugin.name);
+    cleanup(pathToPluginZip);
     return;
   }
 
   async delete(name: string): Promise<void> {
-    const plugin: Plugin = await this.pluginModel.findOneAndDelete({ name });
-    if (plugin !== null) return;
-    throw new HttpException('Plugin does not exist', HttpStatus.BAD_REQUEST);
+    await this.pluginModel.findOneAndDelete({ name }).orFail(new PluginDoesNotExistException());
+    cleanup(this.pluginsPath + path.sep + name);
+    return;
+  }
+
+  async setEnable(name: string, is_enabled: boolean): Promise<void> {
+    await this.pluginModel
+      .findOneAndUpdate({ name }, { is_enabled })
+      .orFail(new PluginDoesNotExistException());
+    return;
+  }
+
+  async getEnabledPlugins(): Promise<Plugin[]> {
+    return this.pluginModel.find({ is_enabled: true });
+  }
+
+  private async getPaths(pluginZipName: string): Promise<any> {
+    const pathToPluginZip = os.tmpdir() + path.sep + pluginZipName;
+    if (!(await isFileExists(pathToPluginZip))) throw new IncorrectPluginUploadException();
+    const pathToExtractPlugin = pathToPluginZip.replace('.zip', '');
+    return { pathToPluginZip, pathToExtractPlugin };
+  }
+
+  private async extractZippedPlugin(
+    filePath: string,
+    extractDestination: string,
+  ): Promise<ExtractedPlugin> {
+    await extract(filePath, { dir: extractDestination });
+    const plugin: ExtractedPlugin = plainToClass(
+      ExtractedPlugin,
+      await parsePackageJson(`${extractDestination}${path.sep}package.json`),
+      { excludeExtraneousValues: true },
+    );
+    try {
+      await validateOrReject(plugin);
+    } catch (errors) {
+      throw new InvalidPluginException(errors, [filePath, extractDestination]);
+    }
+    return plugin;
   }
 }

@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-export class DeletePluginDto {
+
+export class PluginDto {
   @IsNotEmpty()
   @IsString()
-  readonly name: string;
+  readonly fileName: string;
 }

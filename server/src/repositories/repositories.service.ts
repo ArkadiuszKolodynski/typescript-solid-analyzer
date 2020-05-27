@@ -10,12 +10,10 @@ export class RepositoriesService {
         Authorization: `token ${token}`,
       },
     });
-    if (response.ok) {
-      const repositories: any[] = await response.json();
-      return repositories
-        .filter((repo) => repo.language?.toLowerCase() === 'typescript')
-        .map((repo) => new RepositoryDto(repo.id, repo.clone_url, repo.name, repo.full_name));
-    }
-    throw new HttpException(response.statusText, response.status);
+    if (!response.ok) throw new HttpException(response.statusText, response.status);
+    const repositories: any[] = await response.json();
+    return repositories
+      .filter((repo) => repo.language?.toLowerCase() === 'typescript')
+      .map((repo) => new RepositoryDto(repo.id, repo.clone_url, repo.name, repo.full_name));
   }
 }

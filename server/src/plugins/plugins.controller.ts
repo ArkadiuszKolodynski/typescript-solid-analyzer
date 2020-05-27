@@ -1,22 +1,11 @@
-import {
-  Controller,
-  UseGuards,
-  Post,
-  Body,
-  UsePipes,
-  ValidationPipe,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Put, Delete, Param, Patch } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PluginsService } from './plugins.service';
 import { UploadPluginDto } from './dto/upload-plugin.dto';
-import { CreatePluginDto } from './dto/create-plugin.dto';
-import { DeletePluginDto } from './dto/delete-plugin.dto';
+import { PluginDto } from './dto/plugin.dto';
 
 @Controller('plugins')
-// @UseGuards(AuthGuard)
-@UsePipes(ValidationPipe)
+@UseGuards(AuthGuard)
 export class PluginsController {
   constructor(private readonly pluginsService: PluginsService) {}
 
@@ -26,21 +15,33 @@ export class PluginsController {
     return { fileName };
   }
 
-  @Post('/create')
-  private async create(@Body() createPluginDto: CreatePluginDto): Promise<void> {
-    await this.pluginsService.create(createPluginDto.fileName);
+  @Post()
+  private async create(@Body() pluginDto: PluginDto): Promise<void> {
+    await this.pluginsService.create(pluginDto.fileName);
     return;
   }
 
-  @Put('/update')
-  private async update() {
-    await this.pluginsService.update();
-    return {};
+  @Put()
+  private async update(@Body() pluginDto: PluginDto): Promise<void> {
+    await this.pluginsService.update(pluginDto.fileName);
+    return;
   }
 
-  @Delete('/delete')
-  private async delete(@Body() deletePluginDto: DeletePluginDto) {
-    await this.pluginsService.delete(deletePluginDto.name);
-    return {};
+  @Delete('/:name')
+  private async delete(@Param('name') name: string): Promise<void> {
+    await this.pluginsService.delete(name);
+    return;
+  }
+
+  @Patch('/:name/enable')
+  private async enable(@Param('name') name: string): Promise<void> {
+    await this.pluginsService.setEnable(name, true);
+    return;
+  }
+
+  @Patch('/:name/disable')
+  private async disable(@Param('name') name: string): Promise<void> {
+    await this.pluginsService.setEnable(name, false);
+    return;
   }
 }

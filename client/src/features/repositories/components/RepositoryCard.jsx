@@ -16,9 +16,16 @@ export const RepositoryCard = ({ repository }) => {
         })
       );
     };
+    socket.onerror = (err) => {
+      console.log(err);
+      socket.close();
+    };
     socket.onmessage = (message) => {
       console.log(message);
-      if (JSON.parse(message.data).event === "results") {
+      if (
+        JSON.parse(message.data).event === "results" ||
+        JSON.parse(message.data).event === "error"
+      ) {
         console.log("closing...");
         socket.close();
       }

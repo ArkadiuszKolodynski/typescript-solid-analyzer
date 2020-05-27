@@ -8,5 +8,6 @@ import { PluginSchema } from './schemas/plugin.schema';
   imports: [MongooseModule.forFeature([{ name: 'Plugin', schema: PluginSchema }])],
   controllers: [PluginsController],
   providers: [PluginsService],
+  exports: [PluginsService],
 })
 export class PluginsModule {}
