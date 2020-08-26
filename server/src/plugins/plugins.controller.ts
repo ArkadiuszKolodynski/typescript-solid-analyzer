@@ -1,14 +1,21 @@
-import { Body, Controller, Delete, Param, Patch,Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-import { PluginDto } from './dto/plugin.dto';
+import { CreatePluginDto } from './dto/create-plugin.dto';
+import { UpdatePluginDto } from './dto/update-plugin.dto';
 import { UploadPluginDto } from './dto/upload-plugin.dto';
+import { Plugin } from './interfaces';
 import { PluginsService } from './plugins.service';
 
 @Controller('plugins')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class PluginsController {
   constructor(private readonly pluginsService: PluginsService) {}
+
+  @Get()
+  private async findAll(): Promise<Plugin[]> {
+    return this.pluginsService.findAll();
+  }
 
   @Post('/upload')
   private async upload(@Body() uploadPluginDto: UploadPluginDto): Promise<any> {
@@ -17,32 +24,27 @@ export class PluginsController {
   }
 
   @Post()
-  private async create(@Body() pluginDto: PluginDto): Promise<void> {
-    await this.pluginsService.create(pluginDto.fileName);
-    return;
+  private async create(@Body() createPluginDto: CreatePluginDto): Promise<Plugin> {
+    return this.pluginsService.create(createPluginDto.fileName);
   }
 
   @Put()
-  private async update(@Body() pluginDto: PluginDto): Promise<void> {
-    await this.pluginsService.update(pluginDto.fileName);
-    return;
+  private async update(@Body() updatePluginDto: UpdatePluginDto): Promise<Plugin> {
+    return this.pluginsService.update(updatePluginDto);
   }
 
-  @Delete('/:name')
-  private async delete(@Param('name') name: string): Promise<void> {
-    await this.pluginsService.delete(name);
-    return;
+  @Delete('/:id')
+  private async delete(@Param('id') id: string): Promise<void> {
+    return this.pluginsService.delete(id);
   }
 
-  @Patch('/:name/enable')
-  private async enable(@Param('name') name: string): Promise<void> {
-    await this.pluginsService.setEnable(name, true);
-    return;
+  @Patch('/:id/enable')
+  private async enable(@Param('id') id: string): Promise<void> {
+    return this.pluginsService.setEnable(id, true);
   }
 
-  @Patch('/:name/disable')
-  private async disable(@Param('name') name: string): Promise<void> {
-    await this.pluginsService.setEnable(name, false);
-    return;
+  @Patch('/:id/disable')
+  private async disable(@Param('id') id: string): Promise<void> {
+    return this.pluginsService.setEnable(id, false);
   }
 }

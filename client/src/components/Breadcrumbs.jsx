@@ -1,15 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import useBreadcrumbs from "use-react-router-breadcrumbs";
+// import useBreadcrumbs from "use-react-router-breadcrumbs";
 
 export const Breadcrumbs = () => {
-  const breadcrumbs = useBreadcrumbs();
+  // const breadcrumbs = useBreadcrumbs();
+  const breadcrumbs = window.location.pathname
+    .split("/")
+    .filter((section) => section !== "");
   console.log(breadcrumbs);
 
   if (
-    breadcrumbs.length < 2 ||
-    (breadcrumbs[1].key !== "/repositories" &&
-      breadcrumbs[1].key !== "/results")
+    breadcrumbs.length < 1 ||
+    (breadcrumbs[0] !== "repositories" && breadcrumbs[0] !== "results")
   ) {
     return null;
   }
@@ -17,7 +19,7 @@ export const Breadcrumbs = () => {
   return (
     <nav aria-label="breadcrumb">
       <ol className="breadcrumb rounded-0">
-        {breadcrumbs[1].key === "/repositories" ? (
+        {breadcrumbs[0] === "repositories" ? (
           <li className="breadcrumb-item active" aria-current="page">
             Repositories
           </li>

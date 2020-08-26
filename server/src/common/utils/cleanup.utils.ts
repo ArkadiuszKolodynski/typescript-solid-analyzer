@@ -1,4 +1,4 @@
-import * as rimraf from 'rimraf';
+import rimraf from 'rimraf';
 
 export function cleanup(path: string): Promise<void> {
   return new Promise((resolve, reject) => {

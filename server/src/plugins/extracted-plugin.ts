@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsSemVer,IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsSemVer, IsString } from 'class-validator';
 
 export class ExtractedPlugin {
   @Expose()
@@ -12,13 +12,23 @@ export class ExtractedPlugin {
   main: string;
   @Expose()
   @IsNotEmpty()
-  @IsString()
   @IsSemVer()
+  @IsString()
   version: string;
+  @Expose()
+  @IsOptional()
+  @IsString()
+  description: string;
+  @Expose()
+  @IsOptional()
+  @IsString()
+  author: string;
 
-  constructor(name: string, main: string, version: string) {
+  constructor(name: string, main: string, version: string, description?: string, author?: string) {
     this.name = name;
     this.main = main;
     this.version = version;
+    this.description = description || '';
+    this.author = author || '';
   }
 }

@@ -5,4 +5,6 @@ export interface Plugin extends Document {
   main: string;
   is_enabled: boolean;
   version: string;
+  description?: string;
+  author?: string;
 }

@@ -1,4 +1,4 @@
-import { Logger, UseFilters,UsePipes, ValidationPipe } from '@nestjs/common';
+import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   MessageBody,
   OnGatewayConnection,
@@ -14,7 +14,7 @@ import { RepositoryToAnalyzeDto } from './dto/repository-to-analyze.dto';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
 
 @UseFilters(new WsExceptionFilter())
-@UsePipes(new ValidationPipe())
+@UsePipes(new ValidationPipe({ transform: true }))
 @WebSocketGateway()
 export class AnalysesGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly analysesService: AnalysesService) {}
